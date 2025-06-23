@@ -12,7 +12,7 @@ const AddressScreen = () => {
     {
       id: '1',
       name: 'Priscekila',
-      info: '3711 Spring Hill Rd undefined Tallahassee, Nevada 52874 United States dfsdf',
+      info: '3711 Spring Hill Rd undefined Tallahassee, Nevada 52874 United States',
       phone: '+99 1234567890',
     },
       {
