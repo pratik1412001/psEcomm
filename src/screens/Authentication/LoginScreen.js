@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import {
-	View, Text, Image, TouchableWithoutFeedback, ScrollView, TextInput, Alert
-} from 'react-native';
+import { View, Text, Image, TouchableWithoutFeedback, ScrollView, TextInput, Alert } from 'react-native';
 import globle_Style from '../../css/globle_Style';
 import NonActMail from '../../../assets/images/nonact_message.svg'
 import ActiveMail from '../../../assets/images/active_message.svg'
 import NonActPassword from '../../../assets/images/non_act_password.svg'
 import ActivePassword from '../../../assets/images/activepassword.svg'
 import { useNavigation } from '@react-navigation/native';
-import { auth, firestore } from '../../firebase/firebase';
-import { addDoc, collection } from 'firebase/firestore';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import auth from '@react-native-firebase/auth'
 
 
 const LoginScreen = () => {
@@ -27,29 +23,30 @@ const LoginScreen = () => {
 
 
 	// handle api through firebase 
-	// const loginUser = async (email, password, navigation) => {
-	// 	if (!email || !password) {
-	// 		Alert.alert('Error', 'Please enter both email and password.');
-	// 		return;
-	// 	}
 
-	// 	try {
-	// 		const userCredential = await signInWithEmailAndPassword(auth, email, password);
-	// 		const user = userCredential.user;
+	const handleLogin = async () => {
+		if (!email || !password) {
+			Alert.alert('Validation Error', 'Email and password are required.');
+			return;
+		}
 
-	// 		if (!user.emailVerified) {
-	// 			Alert.alert('Email Not Verified', 'Please verify your email before logging in.');
-	// 			return;
-	// 		}
+		try {
+			await auth().signInWithEmailAndPassword(email, password);
 
-	// 		console.log('Login successful:', user.email);
-	// 		navigation.navigate('DashBoard');
-	// 	} catch (error) {
-	// 		console.error('Login error:', error.message);
-	// 		Alert.alert('Login Failed', error.message);
-	// 	}
-	// };
-
+			Alert.alert('Login Successful','Welcome to the app!',);
+			navigation.replace('DashBoard');
+		} catch (error) {
+			if (error.code === 'auth/user-not-found') {
+				Alert.alert('Error', 'No user found for that email.');
+			} else if (error.code === 'auth/wrong-password') {
+				Alert.alert('Error', 'Incorrect password.');
+			} else if (error.code === 'auth/invalid-email') {
+				Alert.alert('Error', 'Invalid email address.');
+			} else {
+				Alert.alert('Error', error.message);
+			}
+		}
+	};
 
 
 	return (
@@ -69,15 +66,15 @@ const LoginScreen = () => {
 
 
 							<TextInput style={[globle_Style.gbl_input, (email.length > 0) ? globle_Style.gbl_act_input : globle_Style.gbl_input]} placeholder='Email'
-								onChangeText={setEmail} >{email}</TextInput>
+								onChangeText={setEmail} value={email} />
 						</View>
 						<View style={[globle_Style.frm_con, (password.length > 0) ? globle_Style.frm_con_active : globle_Style.frm_con]}>
 							<Image source={(password.length > 0) ? require('../../../assets/images/active_Password.png') : require('../../../assets/images/nonact_Password.png')} style={{ marginLeft: 16 }} />
 							{/* <Image source={(password.length > 0) ? <ActivePassword/> : <NonActPassword/>} style={{ marginLeft: 16 }} /> */}
 							<TextInput style={[globle_Style.gbl_input, (password.length > 0) ? globle_Style.gbl_act_input : globle_Style.gbl_input]} placeholder='Password'
-								onChangeText={setPassword}>{password}</TextInput>
+								onChangeText={setPassword} value={password} secureTextEntry />
 						</View>
-						<TouchableWithoutFeedback>
+						<TouchableWithoutFeedback onPress={handleLogin}>
 							<View style={globle_Style.globle_btn}>
 								<Text style={globle_Style.gbl_btn}>Sign In</Text>
 							</View>
